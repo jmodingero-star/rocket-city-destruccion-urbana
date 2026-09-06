@@ -90,6 +90,132 @@
             #loading-overlay h1 { font-size: 28px; }
             .game-credit { font-size: 9px; bottom: 8px; right: 12px; }
         }
+
+        /* Panel de Admin */
+        #adminPanel {
+            position: fixed;
+            z-index: 9998;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(16px);
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: 2px solid rgba(0, 255, 204, 0.2);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-width: 320px;
+            max-width: 90vw;
+            box-shadow: 0 0 60px rgba(0, 255, 204, 0.1);
+        }
+        #adminPanel .admin-title {
+            color: #00ffcc;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        #adminPanel .admin-input-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        #adminPanel .admin-input-row input {
+            flex: 1;
+            min-width: 180px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 2px solid #2a3140;
+            background: #1a1f2e;
+            color: #e6edf3;
+            font-size: 16px;
+            font-family: monospace;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        #adminPanel .admin-input-row input:focus {
+            border-color: #00ffcc;
+            outline: none;
+        }
+        #adminPanel .admin-input-row button {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #00c8a8;
+            color: #0b0e14;
+            min-width: 100px;
+        }
+        #adminPanel .admin-input-row button:hover {
+            transform: scale(1.05);
+            background: #00e6c0;
+        }
+        #adminPanel .admin-input-row .paste-btn-admin {
+            background: #3a6a8a;
+            color: #fff;
+            min-width: 80px;
+        }
+        #adminPanel .admin-input-row .paste-btn-admin:hover {
+            background: #4a8aaa;
+        }
+        #adminPanel .admin-status {
+            font-size: 12px;
+            opacity: 0.6;
+            color: #8a9aaa;
+        }
+        #adminPanel .admin-status.active {
+            color: #00ffcc;
+            opacity: 1;
+        }
+        #adminPanel .close-admin {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #6a7a8a;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        #adminPanel .close-admin:hover {
+            color: #ff6b6b;
+        }
+        #adminToggleBtn {
+            position: fixed;
+            z-index: 9997;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 0.5px;
+        }
+        #adminToggleBtn:hover {
+            background: rgba(0, 255, 204, 0.15);
+            border-color: rgba(0, 255, 204, 0.3);
+            color: #00ffcc;
+        }
+        #adminToggleBtn.active {
+            border-color: #00ffcc;
+            color: #00ffcc;
+            background: rgba(0, 255, 204, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -101,7 +227,22 @@
     </div>
 
     <div id="game-container"></div>
-    <div class="game-credit">⚡ <span>Rocket City 3D</span> · v60.1</div>
+    <div class="game-credit">⚡ <span>Rocket City 3D</span> · v60.7</div>
+
+    <!-- Panel de Admin -->
+    <button id="adminToggleBtn" onclick="toggleAdminPanel()">🔑 ADMIN</button>
+
+    <div id="adminPanel">
+        <button class="close-admin" onclick="toggleAdminPanel()">✕</button>
+        <div class="admin-title">🔐 PANEL DE ADMINISTRADOR</div>
+        <div class="admin-input-row">
+            <input id="adminCodeInput" placeholder="Pega el código aquí" type="text" spellcheck="false" autocomplete="off">
+            <button onclick="activarAdminDesdePanel()">ACTIVAR</button>
+            <button class="paste-btn-admin" onclick="pegarAdminCode()">📋 PEGAR</button>
+        </div>
+        <div class="admin-status" id="adminStatus">Estado: Desactivado</div>
+        <div style="font-size:10px;opacity:0.3;text-align:center;margin-top:4px;">Código: 6tt6r6dfryyT&R%D&r7</div>
+    </div>
 
     <style>
         /* ===== ESTILOS DEL JUEGO ===== */
@@ -1384,6 +1525,28 @@
             #joinCodeScreen .join-actions button {
                 width: 100%;
             }
+            #adminPanel {
+                min-width: auto;
+                width: 90%;
+                bottom: 70px;
+                padding: 12px 16px;
+            }
+            #adminPanel .admin-input-row input {
+                min-width: 120px;
+                font-size: 14px;
+                padding: 10px 12px;
+            }
+            #adminPanel .admin-input-row button {
+                padding: 10px 16px;
+                font-size: 12px;
+                min-width: 70px;
+            }
+            #adminToggleBtn {
+                padding: 6px 12px;
+                font-size: 10px;
+                bottom: 12px;
+                left: 12px;
+            }
         }
 
         .player-level-badge {
@@ -1471,7 +1634,7 @@
             <button class="btn-secondary" onclick="mostrarRanking()">🏆 RANKING</button>
             <button class="btn-accent" id="levelSelectBtn" onclick="cicloNivel()">📶 NIVEL 1</button>
         </div>
-        <div class="version">v60.1 · Admin invisible · F12 inmortal</div>
+        <div class="version">v60.7 · Admin: 6tt6r6dfryyT&R%D&r7</div>
     </div>
 
     <div id="rankingScreen">
@@ -1710,23 +1873,283 @@
             adminExplosionForce: 220,
             laserBaseDamage: 44,
             mineBaseDamage: 45,
-            // Nuevos parámetros para bombas aéreas
-            bombaDamageMultiplier: 0.75, // 25% menos de daño
-            bombaImpactRadius: 3.0, // Radio de impacto reducido
+            bombaDamageMultiplier: 1.15,
+            bombaImpactRadius: 3.75,
         };
 
         // ============================================================
-        //  ADMIN
+        //  ADMIN - CON PANEL PARA PEGAR
         // ============================================================
         let adminActivated = false;
         let adminImmortal = false;
         let adminRocketCooldown = 0;
         const ADMIN_ROCKET_COOLDOWN = 3;
-        const ADMIN_CODE = "495022";
+        const ADMIN_CODE = "6tt6r6dfryyT&R%D&r7";
         let adminInput = "";
+        let adminInputTimer = null;
+        let adminImmortalWhileTyping = false;
+        let adminPanelOpen = false;
 
-        function mostrarNotificacionAdmin(texto, color = '#ffffff') {
+        function toggleAdminPanel() {
+            adminPanelOpen = !adminPanelOpen;
+            document.getElementById('adminPanel').style.display = adminPanelOpen ? 'flex' : 'none';
+            if (adminPanelOpen) {
+                document.getElementById('adminCodeInput').focus();
+                document.getElementById('adminCodeInput').select();
+            }
+        }
+
+        function pegarAdminCode() {
+            const input = document.getElementById('adminCodeInput');
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(text => {
+                    input.value = text.trim();
+                    input.select();
+                    const btn = document.querySelector('.paste-btn-admin');
+                    btn.textContent = '✅ PEGADO';
+                    setTimeout(() => { btn.textContent = '📋 PEGAR'; }, 1500);
+                    // Activar automáticamente
+                    setTimeout(activarAdminDesdePanel, 300);
+                }).catch(() => {
+                    input.focus();
+                    input.select();
+                    alert('📋 Toca el campo y pega el código manualmente');
+                });
+            } else {
+                input.focus();
+                input.select();
+                alert('📋 Toca el campo y pega el código manualmente');
+            }
+        }
+
+        function activarAdminDesdePanel() {
+            const input = document.getElementById('adminCodeInput');
+            const code = input.value.trim();
+            const statusEl = document.getElementById('adminStatus');
+
+            if (code === ADMIN_CODE) {
+                adminActivated = true;
+                adminImmortal = true;
+                statusEl.textContent = '✅ ACTIVADO · Inmortal';
+                statusEl.className = 'admin-status active';
+                document.getElementById('adminToggleBtn').classList.add('active');
+                mostrarNotificacionAdmin('🔑 MODO ADMIN ACTIVADO · INMORTAL', '#00ffcc', true);
+                // Revivir si está muerto
+                const localId = isMultiplayer ? miPlayerId : 1;
+                if (players[localId]) {
+                    players[localId].health = CONFIG.maxHealth;
+                    updateHealthUI(localId);
+                    players[localId].isDead = false;
+                    if (players[localId].playerMesh) players[localId].playerMesh.visible = true;
+                    if (deathPending === localId) {
+                        const ds = document.getElementById('deathScreen');
+                        if (ds) { ds.style.display = 'none';
+                            ds.style.pointerEvents = 'none'; }
+                        deathPending = null;
+                        gameActive = true;
+                        isGameOver = false;
+                    }
+                }
+                // Cerrar panel después de activar
+                setTimeout(toggleAdminPanel, 1000);
+                input.value = '';
+            } else if (code.length > 0) {
+                statusEl.textContent = '❌ Código incorrecto';
+                statusEl.className = 'admin-status';
+                setTimeout(() => {
+                    statusEl.textContent = 'Estado: Desactivado';
+                    statusEl.className = 'admin-status';
+                }, 2000);
+            } else {
+                statusEl.textContent = '⚠️ Ingresa el código';
+                statusEl.className = 'admin-status';
+                setTimeout(() => {
+                    statusEl.textContent = 'Estado: Desactivado';
+                    statusEl.className = 'admin-status';
+                }, 1500);
+            }
+        }
+
+        // También permitir activar con teclado (para PC)
+        document.addEventListener('keydown', (e) => {
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+
+            // Si el panel está abierto, no interferir
+            if (adminPanelOpen) return;
+
+            // Detectar cualquier tecla para el código admin
+            if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                adminImmortalWhileTyping = true;
+
+                if (gameActive && !isGameOver) {
+                    const localId = isMultiplayer ? miPlayerId : 1;
+                    if (players[localId] && players[localId].isDead) {
+                        if (deathPending === localId) {
+                            revivirJugador();
+                        }
+                    }
+                    if (players[localId]) {
+                        players[localId].health = CONFIG.maxHealth;
+                        updateHealthUI(localId);
+                        players[localId].isDead = false;
+                        if (players[localId].playerMesh) players[localId].playerMesh.visible = true;
+                    }
+                }
+
+                if (adminInputTimer) clearTimeout(adminInputTimer);
+                adminInputTimer = setTimeout(() => {
+                    adminImmortalWhileTyping = false;
+                    adminInput = "";
+                    adminInputTimer = null;
+                }, 2000);
+
+                adminInput += e.key;
+
+                if (adminInput === ADMIN_CODE) {
+                    adminActivated = true;
+                    adminImmortal = true;
+                    adminInput = "";
+                    if (adminInputTimer) { clearTimeout(adminInputTimer);
+                        adminInputTimer = null; }
+                    adminImmortalWhileTyping = false;
+                    document.getElementById('adminToggleBtn').classList.add('active');
+                    mostrarNotificacionAdmin('🔑 MODO ADMIN ACTIVADO · INMORTAL', '#00ffcc', true);
+                    const localId = isMultiplayer ? miPlayerId : 1;
+                    if (players[localId]) {
+                        players[localId].health = CONFIG.maxHealth;
+                        updateHealthUI(localId);
+                        players[localId].isDead = false;
+                        if (players[localId].playerMesh) players[localId].playerMesh.visible = true;
+                        if (deathPending === localId) {
+                            const ds = document.getElementById('deathScreen');
+                            if (ds) { ds.style.display = 'none';
+                                ds.style.pointerEvents = 'none'; }
+                            deathPending = null;
+                            gameActive = true;
+                            isGameOver = false;
+                        }
+                    }
+                    // Actualizar panel si está abierto
+                    if (adminPanelOpen) {
+                        const statusEl = document.getElementById('adminStatus');
+                        statusEl.textContent = '✅ ACTIVADO · Inmortal';
+                        statusEl.className = 'admin-status active';
+                        document.getElementById('adminCodeInput').value = '';
+                    }
+                    return;
+                }
+                if (!ADMIN_CODE.startsWith(adminInput) && adminInput.length > 1) {
+                    adminInput = "";
+                }
+                return;
+            }
+
             if (!adminActivated) return;
+
+            if ((e.key === 'c' || e.key === 'C') && gameActive && !isGameOver) {
+                e.preventDefault();
+                try { dispararCoheteAdmin(); } catch (err) { console.warn(err); }
+                return;
+            }
+
+            if (e.key === 'F1') {
+                e.preventDefault();
+                setCoins(getCoins() + 10000);
+                try { refreshShopUI(); } catch (err) {}
+                mostrarNotificacionAdmin('🪙 +10,000 MONEDAS', '#ffd700');
+                return;
+            }
+
+            if (e.key === 'F2') {
+                e.preventDefault();
+                if (gameActive && !isGameOver) {
+                    try { explotarTodosLosEdificiosLocal(); } catch (err) {}
+                    mostrarNotificacionAdmin('💥 EDIFICIOS DESTRUIDOS', '#ff4444');
+                }
+                return;
+            }
+
+            if (e.key === 'F3') {
+                e.preventDefault();
+                try { eliminarTodosAviones(); } catch (err) {}
+                avionesActivos = false;
+                mostrarNotificacionAdmin('✈️ AVIONES ELIMINADOS', '#00ffcc');
+                return;
+            }
+
+            if (e.key === 'F4') {
+                e.preventDefault();
+                gameTimer = Math.max(0, gameTimer + 30);
+                try { updateTimerUI();
+                    syncEventosConTiempo(); } catch (err) {}
+                mostrarNotificacionAdmin('⏩ +30s', '#ffdd44');
+                return;
+            }
+
+            if (e.key === 'F5') {
+                e.preventDefault();
+                gameTimer = Math.max(0, gameTimer - 30);
+                try { updateTimerUI();
+                    syncEventosConTiempo(); } catch (err) {}
+                mostrarNotificacionAdmin('⏪ -30s', '#ffdd44');
+                return;
+            }
+
+            if (e.key === 'F6') {
+                e.preventDefault();
+                avionesActivos = true;
+                for (let i = 0; i < 3; i++) setTimeout(() => { try { crearAvion(); } catch (err) {} }, i * 500);
+                mostrarNotificacionAdmin('✈️ AVIONES REACTIVADOS', '#00ffcc');
+                return;
+            }
+
+            if (e.key === 'F12') {
+                e.preventDefault();
+                adminImmortal = !adminImmortal;
+                if (adminImmortal) {
+                    mostrarNotificacionAdmin('🛡️ INMORTAL ACTIVADO', '#00ffaa');
+                    try {
+                        const localId = isMultiplayer ? miPlayerId : 1;
+                        if (players[localId]) {
+                            players[localId].health = CONFIG.maxHealth;
+                            updateHealthUI(localId);
+                            players[localId].isDead = false;
+                            if (players[localId].playerMesh) players[localId].playerMesh.visible = true;
+                            if (deathPending === localId) {
+                                const ds = document.getElementById('deathScreen');
+                                if (ds) { ds.style.display = 'none';
+                                    ds.style.pointerEvents = 'none'; }
+                                deathPending = null;
+                                gameActive = true;
+                                isGameOver = false;
+                            }
+                        }
+                    } catch (err) {}
+                } else {
+                    mostrarNotificacionAdmin('💔 INMORTAL DESACTIVADO', '#ff6b6b');
+                }
+                return;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key.length === 1 && adminInput.length > 0) {
+                if (adminInputTimer) clearTimeout(adminInputTimer);
+                adminInputTimer = setTimeout(() => {
+                    adminImmortalWhileTyping = false;
+                    if (adminInput.length > 0 && adminInput !== ADMIN_CODE) {
+                        adminInput = "";
+                    }
+                    adminInputTimer = null;
+                }, 1500);
+            }
+        });
+
+        function mostrarNotificacionAdmin(texto, color = '#ffffff', forzar = false) {
+            if (!adminActivated && !forzar) return;
             const notif = document.createElement('div');
             notif.style.cssText = `
                 position: fixed; z-index: 9999;
@@ -1773,6 +2196,8 @@
         let currentLevel = 1;
         let qHookBusy = false;
         let p1Locked = false;
+        let backupCamera = null;
+        let backupCameraActive = false;
 
         function getDifficultyScale() {
             const mins = Math.floor(Math.max(0, gameTimer) / 60);
@@ -2104,115 +2529,7 @@
         }
 
         // ============================================================
-        //  ADMIN - DETECCIÓN DE TECLAS
-        // ============================================================
-        document.addEventListener('keydown', (e) => {
-            const activeElement = document.activeElement;
-            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-                return;
-            }
-
-            if (e.key.length === 1 && /[0-9]/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                adminInput += e.key;
-                if (adminInput.length > 6) adminInput = adminInput.slice(-6);
-                if (adminInput === ADMIN_CODE) {
-                    adminActivated = !adminActivated;
-                    adminInput = "";
-                    if (adminActivated) {
-                        mostrarNotificacionAdmin('🔑 MODO ADMIN ACTIVADO', '#00ffcc');
-                        if (!isMobile && gameActive) {
-                            setTimeout(() => {
-                                try { renderer.domElement.requestPointerLock(); } catch (e) {}
-                            }, 100);
-                        }
-                    } else {
-                        adminImmortal = false;
-                        mostrarNotificacionAdmin('🔒 MODO ADMIN DESACTIVADO', '#ff6b6b');
-                    }
-                    return;
-                }
-            }
-
-            if (!adminActivated) return;
-
-            if ((e.key === 'c' || e.key === 'C') && gameActive && !isGameOver) {
-                e.preventDefault();
-                try { dispararCoheteAdmin(); } catch (err) { console.warn(err); }
-                return;
-            }
-
-            if (e.key === 'F1') {
-                e.preventDefault();
-                setCoins(getCoins() + 10000);
-                try { refreshShopUI(); } catch (err) {}
-                mostrarNotificacionAdmin('🪙 +10,000 MONEDAS', '#ffd700');
-                return;
-            }
-
-            if (e.key === 'F2') {
-                e.preventDefault();
-                if (gameActive && !isGameOver) {
-                    try { explotarTodosLosEdificiosLocal(); } catch (err) {}
-                    mostrarNotificacionAdmin('💥 EDIFICIOS DESTRUIDOS', '#ff4444');
-                }
-                return;
-            }
-
-            if (e.key === 'F3') {
-                e.preventDefault();
-                try { eliminarTodosAviones(); } catch (err) {}
-                avionesActivos = false;
-                mostrarNotificacionAdmin('✈️ AVIONES ELIMINADOS', '#00ffcc');
-                return;
-            }
-
-            if (e.key === 'F4') {
-                e.preventDefault();
-                gameTimer = Math.max(0, gameTimer + 30);
-                try { updateTimerUI();
-                    syncEventosConTiempo(); } catch (err) {}
-                mostrarNotificacionAdmin('⏩ +30s', '#ffdd44');
-                return;
-            }
-
-            if (e.key === 'F5') {
-                e.preventDefault();
-                gameTimer = Math.max(0, gameTimer - 30);
-                try { updateTimerUI();
-                    syncEventosConTiempo(); } catch (err) {}
-                mostrarNotificacionAdmin('⏪ -30s', '#ffdd44');
-                return;
-            }
-
-            if (e.key === 'F6') {
-                e.preventDefault();
-                avionesActivos = true;
-                for (let i = 0; i < 3; i++) setTimeout(() => { try { crearAvion(); } catch (err) {} }, i * 500);
-                mostrarNotificacionAdmin('✈️ AVIONES REACTIVADOS', '#00ffcc');
-                return;
-            }
-
-            if (e.key === 'F12') {
-                e.preventDefault();
-                adminImmortal = !adminImmortal;
-                if (adminImmortal) {
-                    mostrarNotificacionAdmin('🛡️ INMORTAL ACTIVADO', '#00ffaa');
-                    try {
-                        const localId = isMultiplayer ? miPlayerId : 1;
-                        if (players[localId]) {
-                            players[localId].health = CONFIG.maxHealth;
-                            updateHealthUI(localId);
-                        }
-                    } catch (err) {}
-                } else {
-                    mostrarNotificacionAdmin('💔 INMORTAL DESACTIVADO', '#ff6b6b');
-                }
-                return;
-            }
-        });
-
-        // ============================================================
-        //  FUNCIONES PARA COPIAR/PEGAR CÓDIGO
+        //  FUNCIONES PARA COPIAR/PEGAR CÓDIGO (LOBBY)
         // ============================================================
         function copiarCodigo() {
             const code = document.getElementById('lobbyCode').textContent;
@@ -2960,7 +3277,7 @@
 
         function dispararCoheteAdmin() {
             if (!adminActivated) {
-                mostrarNotificacionAdmin('⚠️ Activa el modo Admin (495022)', '#ff6b6b');
+                mostrarNotificacionAdmin('⚠️ Activa el modo Admin primero', '#ff6b6b');
                 return;
             }
             if (!gameActive || isGameOver) {
@@ -3270,7 +3587,7 @@
         }
 
         // ============================================================
-        //  SISTEMA DE MINAS EXPLOSIVAS
+        //  SISTEMA DE MINAS EXPLOSIVAS - CON RADIO REDUCIDO 25%
         // ============================================================
         let minas = [];
         let tiempoMinasActivo = false;
@@ -3278,13 +3595,9 @@
         const TIEMPO_APARICION_MINAS = 60;
 
         function crearMina() {
-            const localId = isMultiplayer ? miPlayerId : 1;
-            const p = players[localId];
-            if (!p || !p.camera) return;
-            const angulo = Math.random() * Math.PI * 2;
-            const dist = 30 + Math.random() * 80;
-            const x = p.camera.position.x + Math.cos(angulo) * dist;
-            const z = p.camera.position.z + Math.sin(angulo) * dist;
+            const x = (Math.random() - 0.5) * 200;
+            const z = (Math.random() - 0.5) * 200;
+
             let colision = false;
             for (const b of buildings) {
                 if (b.dead) continue;
@@ -3293,6 +3606,7 @@
                 if (Math.abs(x - bx) < b.w / 2 + 1 && Math.abs(z - bz) < b.d / 2 + 1) { colision = true; break; }
             }
             if (colision) return;
+
             const group = new THREE.Group();
             if (!window._minaBaseMat) {
                 window._minaBaseMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
@@ -3302,8 +3616,7 @@
             const base = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.9, 0.2, 8), window._minaBaseMat);
             base.position.y = 0.1;
             group.add(base);
-            const dome = new THREE.Mesh(new THREE.SphereGeometry(0.5, 6, 6, 0, Math.PI * 2, 0, Math.PI / 2), window
-                ._minaDomeMat);
+            const dome = new THREE.Mesh(new THREE.SphereGeometry(0.5, 6, 6, 0, Math.PI * 2, 0, Math.PI / 2), window._minaDomeMat);
             dome.position.y = 0.3;
             group.add(dome);
             const luz = new THREE.Mesh(new THREE.SphereGeometry(0.07, 4, 4), window._minaLuzMat);
@@ -3318,7 +3631,7 @@
                 z,
                 activa: true,
                 tiempoDestello: 0,
-                radioExplosion: 5 + Math.min(3, diff.minutes * 0.3),
+                radioExplosion: (5 + Math.min(3, diff.minutes * 0.3)) * 0.75,
                 daño: Math.round(CONFIG.mineBaseDamage * diff.damage),
             });
         }
@@ -3333,7 +3646,7 @@
                 if (gameTimer >= TIEMPO_APARICION_MINAS) {
                     tiempoMinasActivo = true;
                     mostrarNotificacionAdmin('💣 ¡MINAS ACTIVADAS!', '#ff6644');
-                    for (let i = 0; i < 18; i++) crearMina();
+                    for (let i = 0; i < 24; i++) crearMina();
                 }
                 return;
             }
@@ -3343,7 +3656,7 @@
                 return;
             }
             const diffM = getDifficultyScale();
-            if (minas.length < 40 && Math.random() < Math.min(0.28, 0.12 * diffM.spawn)) {
+            if (minas.length < 50 && Math.random() < Math.min(0.35, 0.18 * diffM.spawn)) {
                 crearMina();
             }
             for (const m of minas) {
@@ -3501,9 +3814,7 @@
         }
 
         // ============================================================
-        //  SISTEMA DE BOMBAS DEL CIELO (NIVEL 2) - MODIFICADO
-        //  - Las bombas no pueden impactar directamente sobre el jugador
-        //  - Daño reducido en un 25%
+        //  SISTEMA DE BOMBAS DEL CIELO (NIVEL 2) - CORREGIDO (HACEN DAÑO)
         // ============================================================
         let bombasCielo = [];
         const MAX_BOMBAS = 10;
@@ -3515,9 +3826,8 @@
             const p = players[localId];
             if (!p || !p.camera || p.isDead) return;
             const ang = Math.random() * Math.PI * 2;
-            // La bomba aparece a una distancia mínima del jugador (no directamente encima)
-            const distMin = 12;
-            const distMax = 50;
+            const distMin = 6;
+            const distMax = 14;
             const dist = distMin + Math.random() * (distMax - distMin);
             const tx = p.camera.position.x + Math.cos(ang) * dist;
             const tz = p.camera.position.z + Math.sin(ang) * dist;
@@ -3539,11 +3849,10 @@
                 fin.position.set(Math.cos(i * 2.1) * 0.3, 0.4, Math.sin(i * 2.1) * 0.3);
                 g.add(fin);
             }
-            // Posición inicial aleatoria, nunca directamente sobre el jugador
             g.position.set(
-                tx + (Math.random() - 0.5) * 15,
+                tx + (Math.random() - 0.5) * 5,
                 y,
-                tz + (Math.random() - 0.5) * 15
+                tz + (Math.random() - 0.5) * 5
             );
             scene.add(g);
             const diff = getDifficultyScale();
@@ -3553,11 +3862,11 @@
                 vz: 0,
                 targetX: tx,
                 targetZ: tz,
-                speed: (28 + Math.random() * 14) * diff.speed, // Velocidad ligeramente reducida
-                daño: Math.round(35 * diff.damage * CONFIG.bombaDamageMultiplier), // 25% menos de daño
-                radio: CONFIG.bombaImpactRadius, // Radio de impacto reducido
+                speed: (28 + Math.random() * 14) * diff.speed,
+                daño: Math.round(45 * diff.damage * CONFIG.bombaDamageMultiplier),
+                radio: CONFIG.bombaImpactRadius,
                 life: 8,
-                explosionCooldown: 0 // Para evitar múltiples explosiones
+                explosionCooldown: 0
             });
         }
 
@@ -3567,69 +3876,63 @@
             bombaSpawnTimer -= dt * diff.spawn;
             if (bombaSpawnTimer <= 0) {
                 crearBombaCielo();
-                // Solo una bomba a la vez
-                bombaSpawnTimer = Math.max(1.2, 2.8 / diff.spawn);
+                bombaSpawnTimer = Math.max(0.96, 2.24 / diff.spawn);
             }
             const localId = isMultiplayer ? miPlayerId : 1;
             const p = players[localId];
             for (let i = bombasCielo.length - 1; i >= 0; i--) {
                 const b = bombasCielo[i];
                 b.life -= dt;
-                // La bomba sigue una trayectoria parabólica, no persigue directamente al jugador
-                // Solo actualiza su objetivo de forma suave para que no se desvíe bruscamente
-                if (p && p.camera && !p.isDead && b.g.position.y > 8) {
-                    // Movimiento más suave y menos directo
-                    b.targetX += (p.camera.position.x - b.targetX) * dt * 0.08;
-                    b.targetZ += (p.camera.position.z - b.targetZ) * dt * 0.08;
-                    // Añadir algo de aleatoriedad para que no sea perfectamente preciso
-                    b.targetX += (Math.random() - 0.5) * 2;
-                    b.targetZ += (Math.random() - 0.5) * 2;
+                if (p && p.camera && !p.isDead && b.g.position.y > 2) {
+                    b.targetX += (p.camera.position.x - b.targetX) * dt * 1.5;
+                    b.targetZ += (p.camera.position.z - b.targetZ) * dt * 1.5;
+                    b.targetX += (Math.random() - 0.5) * 1;
+                    b.targetZ += (Math.random() - 0.5) * 1;
                 }
                 const dx = b.targetX - b.g.position.x;
                 const dz = b.targetZ - b.g.position.z;
-                // Movimiento horizontal más lento y suave
                 b.g.position.x += Math.sign(dx) * Math.min(Math.abs(dx), b.speed * 0.3 * dt);
                 b.g.position.z += Math.sign(dz) * Math.min(Math.abs(dz), b.speed * 0.3 * dt);
-                // Caída vertical
                 b.g.position.y -= b.speed * dt * 0.85;
                 b.g.rotation.y += dt * 3.5;
-                // Detectar impacto con el suelo
+
                 let hit = b.g.position.y <= 0.6 || b.life <= 0;
-                // Detectar impacto con el jugador - SOLO si la bomba está cerca y el jugador está en el suelo
-                // Evita que explote directamente en la cabeza del jugador
-                if (p && p.camera && !p.isDead) {
+
+                // DETECCIÓN DE IMPACTO CON EL JUGADOR - CORREGIDO
+                if (p && p.camera && !p.isDead && !adminImmortal && !adminImmortalWhileTyping) {
                     const ddx = b.g.position.x - p.camera.position.x;
                     const ddy = b.g.position.y - p.camera.position.y;
                     const ddz = b.g.position.z - p.camera.position.z;
                     const distToPlayer = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
-                    // Solo daña si la bomba está a una distancia segura y el jugador está en el suelo
-                    // Esto evita que explote directamente sobre la cabeza
-                    if (distToPlayer < b.radio * 1.1 && p.camera.position.y <= 3.0) {
+                    if (distToPlayer < b.radio * 1.2) {
                         hit = true;
                     }
                 }
+
                 if (hit && b.explosionCooldown <= 0) {
                     b.explosionCooldown = 1;
                     const pos = b.g.position.clone();
                     pos.y = Math.max(0.5, pos.y);
-                    // Daño al jugador solo si está dentro del radio y no está en el aire
-                    if (p && p.camera && !p.isDead && p.camera.position.y <= 3.0) {
+                    if (p && p.camera && !p.isDead) {
                         const ddx = pos.x - p.camera.position.x;
+                        const ddy = pos.y - p.camera.position.y;
                         const ddz = pos.z - p.camera.position.z;
-                        const dist = Math.sqrt(ddx * ddx + ddz * ddz);
-                        if (dist < b.radio) {
-                            // Daño reducido por el multiplicador
-                            damagePlayer(localId, b.daño, '💣 Bomba aérea');
+                        const dist = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
+                        if (dist < b.radio * 1.2) {
+                            if (adminActivated && adminImmortal) {
+                                // Inmortal, no hace daño
+                            } else if (adminImmortalWhileTyping) {
+                                // Inmortal mientras escribe
+                            } else {
+                                damagePlayer(localId, b.daño, '💣 Bomba aérea');
+                            }
                         }
                     }
-                    // Efectos visuales
                     explode(pos);
-                    // Onda expansiva más pequeña
                     crearOndaExpansiva(pos, b.radio * 0.7);
                     scene.remove(b.g);
                     bombasCielo.splice(i, 1);
                 }
-                // Actualizar cooldown
                 if (b.explosionCooldown > 0) {
                     b.explosionCooldown -= dt;
                 }
@@ -3722,7 +4025,9 @@
                     const dx = p.camera.position.x - r.x;
                     const dz = p.camera.position.z - r.z;
                     if (dx * dx + dz * dz < r.radio * r.radio) {
-                        damagePlayer(localId, r.daño * dt * 3, '⚡ Rayo de Zeus');
+                        if (!adminImmortal && !adminImmortalWhileTyping) {
+                            damagePlayer(localId, r.daño * dt * 3, '⚡ Rayo de Zeus');
+                        }
                     }
                 }
                 if (r.timer >= r.vida) {
@@ -3759,7 +4064,7 @@
                     tiempoMinasActivo = true;
                     tiempoMinas = gameTimer;
                     mostrarNotificacionAdmin('💣 ¡MINAS ACTIVADAS!', '#ff6644');
-                    for (let i = 0; i < 18; i++) crearMina();
+                    for (let i = 0; i < 24; i++) crearMina();
                 }
             } else {
                 if (tiempoMinasActivo) {
@@ -4121,17 +4426,45 @@
         function damagePlayer(playerId, amount, source) {
             if (!gameActive || isGameOver) return;
             const p = players[playerId];
-            if (!p || p.isDead) return;
-            if (adminImmortal && adminActivated) {
+            if (!p) return;
+            // Inmortalidad por admin o mientras escribe el código
+            if (adminActivated && adminImmortal) {
                 const localId = isMultiplayer ? miPlayerId : 1;
                 if (playerId === localId) {
-                    if (p.health < CONFIG.maxHealth) {
-                        p.health = CONFIG.maxHealth;
-                        updateHealthUI(playerId);
+                    p.isDead = false;
+                    p.health = CONFIG.maxHealth;
+                    updateHealthUI(playerId);
+                    if (p.playerMesh) p.playerMesh.visible = true;
+                    if (deathPending === localId) {
+                        const ds = document.getElementById('deathScreen');
+                        if (ds) { ds.style.display = 'none';
+                            ds.style.pointerEvents = 'none'; }
+                        deathPending = null;
+                        gameActive = true;
+                        isGameOver = false;
                     }
                     return;
                 }
             }
+            if (adminImmortalWhileTyping) {
+                const localId = isMultiplayer ? miPlayerId : 1;
+                if (playerId === localId) {
+                    p.isDead = false;
+                    p.health = CONFIG.maxHealth;
+                    updateHealthUI(playerId);
+                    if (p.playerMesh) p.playerMesh.visible = true;
+                    if (deathPending === localId) {
+                        const ds = document.getElementById('deathScreen');
+                        if (ds) { ds.style.display = 'none';
+                            ds.style.pointerEvents = 'none'; }
+                        deathPending = null;
+                        gameActive = true;
+                        isGameOver = false;
+                    }
+                    return;
+                }
+            }
+            if (p.isDead) return;
             p.health = Math.max(0, p.health - amount);
             updateHealthUI(playerId);
             if (p.health <= 0) {
@@ -4176,7 +4509,6 @@
                 document.getElementById('deathTitle').textContent = `💀 ¡${players[playerId].name} ha muerto!`;
                 document.getElementById('deathSub').textContent = source || 'Has muerto';
                 document.getElementById('deathScores').textContent = `Puntuación: ${players[playerId].score} pts · Tiempo: ${formatTimeRank(gameTimer)}`;
-                gameActive = false;
                 deathPending = playerId;
                 try { registrarTiempoSupervivencia(playerId); } catch (e) {}
                 gameTimer = 0;
@@ -4189,6 +4521,10 @@
                 try { eliminarTodosLasers(); } catch (e) {}
                 try { eliminarBombasCielo(); } catch (e) {}
                 try { eliminarRayosZeus(); } catch (e) {}
+                if (players[playerId] && players[playerId].camera) {
+                    backupCamera = players[playerId].camera.clone();
+                    backupCameraActive = true;
+                }
                 setTimeout(() => {
                     const btnRevivir = deathScreen.querySelector('button');
                     if (btnRevivir) {
@@ -4201,7 +4537,6 @@
                 }, 50);
             } catch (err) {
                 console.error('Error en pantalla de muerte:', err);
-                gameActive = false;
                 deathPending = playerId;
                 const deathScreen = document.getElementById('deathScreen');
                 if (deathScreen) { deathScreen.style.display = 'flex';
@@ -4255,6 +4590,8 @@
             gameActive = true;
             isGameOver = false;
             deathPending = null;
+            backupCameraActive = false;
+            backupCamera = null;
             if (!isMobile && renderer && renderer.domElement) {
                 setTimeout(() => {
                     try { renderer.domElement.requestPointerLock(); } catch (e) {}
@@ -4788,13 +5125,12 @@
         });
         renderer.setClearColor(0x87CEEB, 1);
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(devicePixelRatio, isLowEnd ? 1.0 : 1.25));
+        renderer.setPixelRatio(isLowEnd ? 1.0 : Math.min(devicePixelRatio, 1.15));
         renderer.shadowMap.enabled = !isLowEnd;
         renderer.shadowMap.type = THREE.BasicShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1.05;
 
-        // Insertar el canvas de Three.js dentro del contenedor
         const container = document.getElementById('game-container');
         container.appendChild(renderer.domElement);
 
@@ -5142,7 +5478,7 @@
                     if (gameActive && !isGameOver) {
                         if (rocketCooldown > 0) rocketCooldown = Math.max(0, rocketCooldown - dt);
                         gameTimer += dt;
-                        if (frameCount % 2 === 0) updateTimerUI();
+                        if (frameCount % 4 === 0) updateTimerUI();
                         update(dt);
                         actualizarAviones(dt);
                         actualizarMinas(dt);
@@ -5151,12 +5487,11 @@
                         actualizarRayosZeus(dt);
                     }
                     render();
-                    if (frameCount % 4 === 0) updateMiniMap();
+                    if (!document.hidden && frameCount % 8 === 0) updateMiniMap();
                     requestAnimationFrame(loop);
                 }
                 loop(last);
             }
-            // Ocultar overlay de carga
             document.getElementById('loading-overlay').classList.add('hidden');
         }
 
@@ -5271,7 +5606,7 @@
                     if (gameActive && !isGameOver) {
                         if (!isMultiplayer || networkHost) {
                             gameTimer += dt;
-                            if (frameCount % 2 === 0) updateTimerUI();
+                            if (frameCount % 4 === 0) updateTimerUI();
                         }
                         if (rocketCooldown > 0) rocketCooldown = Math.max(0, rocketCooldown - dt);
                         update(dt);
@@ -5283,7 +5618,7 @@
                     }
                     enviarEstadoRed(t);
                     render();
-                    if (frameCount % 4 === 0) updateMiniMap();
+                    if (!document.hidden && frameCount % 8 === 0) updateMiniMap();
                     requestAnimationFrame(loop);
                 }
                 loop(last);
@@ -5628,12 +5963,22 @@
         }
 
         // ============================================================
-        //  RENDER
+        //  RENDER - CON RESPALDO PARA PANTALLA DE MUERTE
         // ============================================================
         function render() {
             const localId = isMultiplayer ? miPlayerId : 1;
-            const cam = players[localId] && players[localId].camera;
-            if (!cam) return;
+            let cam = players[localId] && players[localId].camera;
+            if (!cam || (players[localId] && players[localId].isDead)) {
+                if (backupCamera) {
+                    cam = backupCamera;
+                } else if (players[localId] && players[localId].camera) {
+                    cam = players[localId].camera;
+                }
+            }
+            if (!cam) {
+                if (players[1] && players[1].camera) cam = players[1].camera;
+                else return;
+            }
             renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
             renderer.setScissorTest(false);
             renderer.render(scene, cam);
@@ -5702,6 +6047,8 @@
             try { eliminarBombasCielo(); } catch (e) {}
             try { eliminarRayosZeus(); } catch (e) {}
             eliminarTodosLasers();
+            backupCameraActive = false;
+            backupCamera = null;
         }
 
         // ============================================================
@@ -5715,6 +6062,10 @@
                     players[pid].camera.aspect = w / h;
                     players[pid].camera.updateProjectionMatrix();
                 }
+            }
+            if (backupCamera) {
+                backupCamera.aspect = w / h;
+                backupCamera.updateProjectionMatrix();
             }
             renderer.setSize(w, h);
             const canvas = document.getElementById('miniMapCanvas');
@@ -5860,14 +6211,15 @@
                 console.log('✅ Renderizado forzado');
                 updateMiniMap();
             }
-            // Ocultar overlay de carga si ya hay cámara
             document.getElementById('loading-overlay').classList.add('hidden');
         }, 100);
 
-        console.log('🚀 Rocket City 3D v60.1 - Admin invisible');
+        console.log('🚀 Rocket City 3D v60.7 - Admin: 6tt6r6dfryyT&R%D&r7');
         console.log('📱 Móvil:', isMobile ? 'SÍ' : 'NO', '| Low-end:', isLowEnd ? 'SÍ' : 'NO');
-        console.log('⌨️ F: disparar | Q: Gancho | C: Admin (si conoces el código) | F12: inmortal');
-        console.log('🔑 Código Admin: 495022 (completamente invisible)');
+        console.log('⌨️ F: disparar | Q: Gancho | E: Auto/Botiquín | Espacio: Saltar');
+        console.log('🔑 Código Admin: 6tt6r6dfryyT&R%D&r7 (pégalo en el panel o escríbelo)');
+        console.log('💣 MINAS: Aparecen en todo el mapa · Radio reducido 25%');
+        console.log('💥 BOMBAS AÉREAS: ¡Ahora hacen daño!');
 
         if (isMobile) {
             setTimeout(() => {
