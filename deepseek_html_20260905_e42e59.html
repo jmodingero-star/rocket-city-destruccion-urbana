@@ -1964,6 +1964,18 @@
             const statusEl = document.getElementById('adminStatus');
 
             if (code === ADMIN_CODE) {
+                if (adminActivated) {
+                    // Ya estaba activo: al reingresar el código, se desactiva
+                    adminActivated = false;
+                    adminImmortal = false;
+                    statusEl.textContent = 'Estado: Off';
+                    statusEl.className = 'admin-status';
+                    document.getElementById('adminToggleBtn').classList.remove('active');
+                    mostrarNotificacionAdmin('🔒 ADMIN DESACTIVADO', '#ff6b6b', true);
+                    setTimeout(toggleAdminPanel, 1000);
+                    input.value = '';
+                    return;
+                }
                 adminActivated = true;
                 adminImmortal = true;
                 statusEl.textContent = '✅ ON · Inmortal';
@@ -2043,12 +2055,28 @@
                 adminInput += e.key;
 
                 if (adminInput === ADMIN_CODE) {
-                    adminActivated = true;
-                    adminImmortal = true;
                     adminInput = "";
                     if (adminInputTimer) { clearTimeout(adminInputTimer);
                         adminInputTimer = null; }
                     adminImmortalWhileTyping = false;
+
+                    if (adminActivated) {
+                        // Ya estaba activo: al reingresar el código, se desactiva
+                        adminActivated = false;
+                        adminImmortal = false;
+                        document.getElementById('adminToggleBtn').classList.remove('active');
+                        mostrarNotificacionAdmin('🔒 ADMIN DESACTIVADO', '#ff6b6b', true);
+                        if (adminPanelOpen) {
+                            const statusEl = document.getElementById('adminStatus');
+                            statusEl.textContent = 'Estado: Off';
+                            statusEl.className = 'admin-status';
+                            document.getElementById('adminCodeInput').value = '';
+                        }
+                        return;
+                    }
+
+                    adminActivated = true;
+                    adminImmortal = true;
                     document.getElementById('adminToggleBtn').classList.add('active');
                     mostrarNotificacionAdmin('🔑 ADMIN ACTIVADO · INMORTAL', '#00ffcc', true);
                     if (players[localId]) {
