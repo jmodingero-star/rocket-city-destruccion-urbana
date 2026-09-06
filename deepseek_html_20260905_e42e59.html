@@ -5450,8 +5450,7 @@
             document.getElementById('timerDisplay').style.display = 'block';
             document.getElementById('controls').style.display = 'block';
             document.getElementById('miniMap').style.display = 'block';
-            // Mostrar botón de admin solo para jugador local
-            document.getElementById('adminToggleBtn').style.display = 'block';
+            // Botón de admin permanece oculto (activación solo por código de teclado)
             for (let i = 1; i <= 2; i++) players[i].isLocal = (i === 1);
             if (isMobile) {
                 document.getElementById('touchJoystick').style.display = 'block';
@@ -5575,13 +5574,9 @@
             document.getElementById('crossP2').style.display = miPlayerId === 2 ? 'block' : 'none';
             document.getElementById('controls').style.display = 'block';
             document.getElementById('miniMap').style.display = 'block';
-            // Solo el jugador 1 (host) ve el botón de admin
-            if (miPlayerId === 1) {
-                document.getElementById('adminToggleBtn').style.display = 'block';
-            } else {
-                document.getElementById('adminToggleBtn').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'none';
-            }
+            // Botón de admin permanece oculto para todos (activación solo por código de teclado)
+            document.getElementById('adminToggleBtn').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
             if (!isMobile) setTimeout(() => { try { renderer.domElement.requestPointerLock(); } catch (e) {} }, 300);
             if (isMobile) {
                 document.getElementById('touchJoystick').style.display = 'block';
