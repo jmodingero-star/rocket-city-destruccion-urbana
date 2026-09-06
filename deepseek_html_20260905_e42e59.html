@@ -4,14 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Rocket City 3D · Juego Urbano</title>
-    <!-- Estilos para la página contenedora -->
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             background: #0a0c12;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -19,8 +17,6 @@
             height: 100vh;
             width: 100vw;
         }
-
-        /* Contenedor del juego (ocupa toda la pantalla) */
         #game-container {
             position: fixed;
             top: 0;
@@ -29,15 +25,11 @@
             height: 100%;
             z-index: 1;
         }
-
-        /* El canvas de Three.js se inserta aquí */
         #game-container canvas {
             display: block;
             width: 100% !important;
             height: 100% !important;
         }
-
-        /* Overlay de carga inicial (se oculta cuando el juego está listo) */
         #loading-overlay {
             position: fixed;
             inset: 0;
@@ -51,11 +43,9 @@
             transition: opacity 0.8s ease;
             pointer-events: none;
         }
-
         #loading-overlay.hidden {
             opacity: 0;
         }
-
         #loading-overlay h1 {
             font-size: 42px;
             font-weight: 900;
@@ -65,13 +55,11 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
         }
-
         #loading-overlay .sub {
             font-size: 14px;
             opacity: 0.5;
             letter-spacing: 3px;
         }
-
         .loader {
             margin-top: 24px;
             width: 48px;
@@ -81,12 +69,9 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Watermark inferior (opcional) */
         .game-credit {
             position: fixed;
             bottom: 12px;
@@ -98,45 +83,28 @@
             pointer-events: none;
             font-weight: 300;
         }
-
         .game-credit span {
             color: rgba(0, 255, 204, 0.25);
         }
-
-        /* Ajustes para móvil */
         @media (max-width: 640px) {
-            #loading-overlay h1 {
-                font-size: 28px;
-            }
-            .game-credit {
-                font-size: 9px;
-                bottom: 8px;
-                right: 12px;
-            }
+            #loading-overlay h1 { font-size: 28px; }
+            .game-credit { font-size: 9px; bottom: 8px; right: 12px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Overlay de carga -->
     <div id="loading-overlay">
         <h1>🚀 ROCKET CITY</h1>
         <div class="sub">GUERRA URBANA · 3D</div>
         <div class="loader"></div>
     </div>
 
-    <!-- Contenedor del juego -->
     <div id="game-container"></div>
-
-    <!-- Crédito (opcional) -->
     <div class="game-credit">⚡ <span>Rocket City 3D</span> · v60.1</div>
 
-    <!-- ============================================================ -->
-    <!-- TODO EL CÓDIGO DEL JUEGO (HTML, CSS Y JS)                     -->
-    <!-- ============================================================ -->
-
     <style>
-        /* ===== ESTILOS DEL JUEGO (extraídos del archivo original) ===== */
+        /* ===== ESTILOS DEL JUEGO ===== */
         * {
             margin: 0;
             padding: 0;
@@ -1742,10 +1710,13 @@
             adminExplosionForce: 220,
             laserBaseDamage: 44,
             mineBaseDamage: 45,
+            // Nuevos parámetros para bombas aéreas
+            bombaDamageMultiplier: 0.75, // 25% menos de daño
+            bombaImpactRadius: 3.0, // Radio de impacto reducido
         };
 
         // ============================================================
-        //  ADMIN - COMPLETAMENTE INVISIBLE PARA OTROS
+        //  ADMIN
         // ============================================================
         let adminActivated = false;
         let adminImmortal = false;
@@ -2133,7 +2104,7 @@
         }
 
         // ============================================================
-        //  ADMIN - DETECCIÓN DE TECLAS (INVISIBLE PARA OTROS)
+        //  ADMIN - DETECCIÓN DE TECLAS
         // ============================================================
         document.addEventListener('keydown', (e) => {
             const activeElement = document.activeElement;
@@ -2433,7 +2404,7 @@
         const LEVEL3_PRICE = 4500;
 
         // ============================================================
-        //  NIVEL DE JUGADOR (experiencia por tiempo jugado)
+        //  NIVEL DE JUGADOR
         // ============================================================
         const XP_KEYS = { level: 'rc3d_playerLevel', xp: 'rc3d_playerXp', timer: 'rc3d_xpTimer' };
         const XP_MAX_LEVEL = 500;
@@ -2874,7 +2845,7 @@
         }
 
         // ============================================================
-        //  ADMIN - EXPLOSIÓN DE COHETE ADMIN (SOLO LOCAL)
+        //  ADMIN - EXPLOSIÓN DE COHETE ADMIN
         // ============================================================
         function explotarTodosLosEdificiosLocal() {
             const localId = isMultiplayer ? miPlayerId : 1;
@@ -3530,7 +3501,9 @@
         }
 
         // ============================================================
-        //  SISTEMA DE BOMBAS DEL CIELO (NIVEL 2)
+        //  SISTEMA DE BOMBAS DEL CIELO (NIVEL 2) - MODIFICADO
+        //  - Las bombas no pueden impactar directamente sobre el jugador
+        //  - Daño reducido en un 25%
         // ============================================================
         let bombasCielo = [];
         const MAX_BOMBAS = 10;
@@ -3542,7 +3515,10 @@
             const p = players[localId];
             if (!p || !p.camera || p.isDead) return;
             const ang = Math.random() * Math.PI * 2;
-            const dist = 8 + Math.random() * 45;
+            // La bomba aparece a una distancia mínima del jugador (no directamente encima)
+            const distMin = 12;
+            const distMax = 50;
+            const dist = distMin + Math.random() * (distMax - distMin);
             const tx = p.camera.position.x + Math.cos(ang) * dist;
             const tz = p.camera.position.z + Math.sin(ang) * dist;
             const y = 40 + Math.random() * 25;
@@ -3563,7 +3539,12 @@
                 fin.position.set(Math.cos(i * 2.1) * 0.3, 0.4, Math.sin(i * 2.1) * 0.3);
                 g.add(fin);
             }
-            g.position.set(tx + (Math.random() - 0.5) * 10, y, tz + (Math.random() - 0.5) * 10);
+            // Posición inicial aleatoria, nunca directamente sobre el jugador
+            g.position.set(
+                tx + (Math.random() - 0.5) * 15,
+                y,
+                tz + (Math.random() - 0.5) * 15
+            );
             scene.add(g);
             const diff = getDifficultyScale();
             bombasCielo.push({
@@ -3572,10 +3553,11 @@
                 vz: 0,
                 targetX: tx,
                 targetZ: tz,
-                speed: (32 + Math.random() * 16) * diff.speed,
-                daño: Math.round(35 * diff.damage),
-                radio: 5.6,
-                life: 8
+                speed: (28 + Math.random() * 14) * diff.speed, // Velocidad ligeramente reducida
+                daño: Math.round(35 * diff.damage * CONFIG.bombaDamageMultiplier), // 25% menos de daño
+                radio: CONFIG.bombaImpactRadius, // Radio de impacto reducido
+                life: 8,
+                explosionCooldown: 0 // Para evitar múltiples explosiones
             });
         }
 
@@ -3585,44 +3567,71 @@
             bombaSpawnTimer -= dt * diff.spawn;
             if (bombaSpawnTimer <= 0) {
                 crearBombaCielo();
-                bombaSpawnTimer = Math.max(0.8, 2.2 / diff.spawn);
+                // Solo una bomba a la vez
+                bombaSpawnTimer = Math.max(1.2, 2.8 / diff.spawn);
             }
             const localId = isMultiplayer ? miPlayerId : 1;
             const p = players[localId];
             for (let i = bombasCielo.length - 1; i >= 0; i--) {
                 const b = bombasCielo[i];
                 b.life -= dt;
-                if (p && p.camera && !p.isDead) {
-                    b.targetX = p.camera.position.x + (Math.random() - 0.5) * 6;
-                    b.targetZ = p.camera.position.z + (Math.random() - 0.5) * 6;
+                // La bomba sigue una trayectoria parabólica, no persigue directamente al jugador
+                // Solo actualiza su objetivo de forma suave para que no se desvíe bruscamente
+                if (p && p.camera && !p.isDead && b.g.position.y > 8) {
+                    // Movimiento más suave y menos directo
+                    b.targetX += (p.camera.position.x - b.targetX) * dt * 0.08;
+                    b.targetZ += (p.camera.position.z - b.targetZ) * dt * 0.08;
+                    // Añadir algo de aleatoriedad para que no sea perfectamente preciso
+                    b.targetX += (Math.random() - 0.5) * 2;
+                    b.targetZ += (Math.random() - 0.5) * 2;
                 }
                 const dx = b.targetX - b.g.position.x;
                 const dz = b.targetZ - b.g.position.z;
-                b.g.position.x += Math.sign(dx) * Math.min(Math.abs(dx), b.speed * 0.35 * dt);
-                b.g.position.z += Math.sign(dz) * Math.min(Math.abs(dz), b.speed * 0.35 * dt);
-                b.g.position.y -= b.speed * dt;
-                b.g.rotation.y += dt * 4;
+                // Movimiento horizontal más lento y suave
+                b.g.position.x += Math.sign(dx) * Math.min(Math.abs(dx), b.speed * 0.3 * dt);
+                b.g.position.z += Math.sign(dz) * Math.min(Math.abs(dz), b.speed * 0.3 * dt);
+                // Caída vertical
+                b.g.position.y -= b.speed * dt * 0.85;
+                b.g.rotation.y += dt * 3.5;
+                // Detectar impacto con el suelo
                 let hit = b.g.position.y <= 0.6 || b.life <= 0;
+                // Detectar impacto con el jugador - SOLO si la bomba está cerca y el jugador está en el suelo
+                // Evita que explote directamente en la cabeza del jugador
                 if (p && p.camera && !p.isDead) {
                     const ddx = b.g.position.x - p.camera.position.x;
                     const ddy = b.g.position.y - p.camera.position.y;
                     const ddz = b.g.position.z - p.camera.position.z;
-                    if (ddx * ddx + ddy * ddy + ddz * ddz < b.radio * b.radio) hit = true;
+                    const distToPlayer = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
+                    // Solo daña si la bomba está a una distancia segura y el jugador está en el suelo
+                    // Esto evita que explote directamente sobre la cabeza
+                    if (distToPlayer < b.radio * 1.1 && p.camera.position.y <= 3.0) {
+                        hit = true;
+                    }
                 }
-                if (hit) {
+                if (hit && b.explosionCooldown <= 0) {
+                    b.explosionCooldown = 1;
                     const pos = b.g.position.clone();
                     pos.y = Math.max(0.5, pos.y);
-                    if (p && p.camera && !p.isDead) {
+                    // Daño al jugador solo si está dentro del radio y no está en el aire
+                    if (p && p.camera && !p.isDead && p.camera.position.y <= 3.0) {
                         const ddx = pos.x - p.camera.position.x;
                         const ddz = pos.z - p.camera.position.z;
-                        if (ddx * ddx + ddz * ddz < b.radio * b.radio * 1.2) {
+                        const dist = Math.sqrt(ddx * ddx + ddz * ddz);
+                        if (dist < b.radio) {
+                            // Daño reducido por el multiplicador
                             damagePlayer(localId, b.daño, '💣 Bomba aérea');
                         }
                     }
+                    // Efectos visuales
                     explode(pos);
-                    crearOndaExpansiva(pos, b.radio);
+                    // Onda expansiva más pequeña
+                    crearOndaExpansiva(pos, b.radio * 0.7);
                     scene.remove(b.g);
                     bombasCielo.splice(i, 1);
+                }
+                // Actualizar cooldown
+                if (b.explosionCooldown > 0) {
+                    b.explosionCooldown -= dt;
                 }
             }
         }
