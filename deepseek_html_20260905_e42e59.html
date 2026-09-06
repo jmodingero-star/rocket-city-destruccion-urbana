@@ -91,7 +91,7 @@
             .game-credit { font-size: 9px; bottom: 8px; right: 12px; }
         }
 
-        /* Panel de Admin */
+        /* Panel de Admin - solo visible localmente */
         #adminPanel {
             position: fixed;
             z-index: 9998;
@@ -194,27 +194,54 @@
             z-index: 9997;
             bottom: 20px;
             left: 20px;
-            padding: 10px 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(8px);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 11px;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 10px;
             cursor: pointer;
             transition: all 0.3s;
             font-family: 'Segoe UI', Arial, sans-serif;
             letter-spacing: 0.5px;
+            display: none;
+            /* Solo visible para el jugador local */
         }
         #adminToggleBtn:hover {
-            background: rgba(0, 255, 204, 0.15);
-            border-color: rgba(0, 255, 204, 0.3);
-            color: #00ffcc;
+            background: rgba(0, 255, 204, 0.12);
+            border-color: rgba(0, 255, 204, 0.2);
+            color: rgba(0, 255, 204, 0.6);
         }
         #adminToggleBtn.active {
             border-color: #00ffcc;
             color: #00ffcc;
             background: rgba(0, 255, 204, 0.1);
+        }
+        /* Ocultar completamente en móvil si es necesario */
+        @media (max-width: 640px) {
+            #adminPanel {
+                min-width: auto;
+                width: 90%;
+                bottom: 70px;
+                padding: 12px 16px;
+            }
+            #adminPanel .admin-input-row input {
+                min-width: 120px;
+                font-size: 14px;
+                padding: 10px 12px;
+            }
+            #adminPanel .admin-input-row button {
+                padding: 10px 16px;
+                font-size: 12px;
+                min-width: 70px;
+            }
+            #adminToggleBtn {
+                padding: 5px 10px;
+                font-size: 9px;
+                bottom: 12px;
+                left: 12px;
+            }
         }
     </style>
 </head>
@@ -227,21 +254,20 @@
     </div>
 
     <div id="game-container"></div>
-    <div class="game-credit">⚡ <span>Rocket City 3D</span> · v60.7</div>
+    <div class="game-credit">⚡ <span>Rocket City 3D</span> · v60.8</div>
 
-    <!-- Panel de Admin -->
-    <button id="adminToggleBtn" onclick="toggleAdminPanel()">🔑 ADMIN</button>
+    <!-- Panel de Admin - solo visible localmente -->
+    <button id="adminToggleBtn" onclick="toggleAdminPanel()">🔑</button>
 
     <div id="adminPanel">
         <button class="close-admin" onclick="toggleAdminPanel()">✕</button>
-        <div class="admin-title">🔐 PANEL DE ADMINISTRADOR</div>
+        <div class="admin-title">🔐 ADMIN</div>
         <div class="admin-input-row">
-            <input id="adminCodeInput" placeholder="Pega el código aquí" type="text" spellcheck="false" autocomplete="off">
+            <input id="adminCodeInput" placeholder="Código" type="password" spellcheck="false" autocomplete="off" maxlength="6">
             <button onclick="activarAdminDesdePanel()">ACTIVAR</button>
-            <button class="paste-btn-admin" onclick="pegarAdminCode()">📋 PEGAR</button>
+            <button class="paste-btn-admin" onclick="pegarAdminCode()">📋</button>
         </div>
-        <div class="admin-status" id="adminStatus">Estado: Desactivado</div>
-        <div style="font-size:10px;opacity:0.3;text-align:center;margin-top:4px;">Código: 6tt6r6dfryyT&R%D&r7</div>
+        <div class="admin-status" id="adminStatus">Estado: Off</div>
     </div>
 
     <style>
@@ -1542,8 +1568,8 @@
                 min-width: 70px;
             }
             #adminToggleBtn {
-                padding: 6px 12px;
-                font-size: 10px;
+                padding: 5px 10px;
+                font-size: 9px;
                 bottom: 12px;
                 left: 12px;
             }
@@ -1634,7 +1660,7 @@
             <button class="btn-secondary" onclick="mostrarRanking()">🏆 RANKING</button>
             <button class="btn-accent" id="levelSelectBtn" onclick="cicloNivel()">📶 NIVEL 1</button>
         </div>
-        <div class="version">v60.7 · Admin: 6tt6r6dfryyT&R%D&r7</div>
+        <div class="version">v60.8</div>
     </div>
 
     <div id="rankingScreen">
@@ -1878,19 +1904,23 @@
         };
 
         // ============================================================
-        //  ADMIN - CON PANEL PARA PEGAR
+        //  ADMIN - CÓDIGO 495022 (INVISIBLE)
         // ============================================================
         let adminActivated = false;
         let adminImmortal = false;
         let adminRocketCooldown = 0;
         const ADMIN_ROCKET_COOLDOWN = 3;
-        const ADMIN_CODE = "6tt6r6dfryyT&R%D&r7";
+        const ADMIN_CODE = "495022";
         let adminInput = "";
         let adminInputTimer = null;
         let adminImmortalWhileTyping = false;
         let adminPanelOpen = false;
+        let isLocalPlayer = true; // Por defecto, el jugador local es el único que ve el admin
 
         function toggleAdminPanel() {
+            // Solo el jugador local puede abrir el panel
+            const localId = isMultiplayer ? miPlayerId : 1;
+            if (localId !== 1 && isMultiplayer) return; // Solo el jugador 1 (host) ve el admin
             adminPanelOpen = !adminPanelOpen;
             document.getElementById('adminPanel').style.display = adminPanelOpen ? 'flex' : 'none';
             if (adminPanelOpen) {
@@ -1903,12 +1933,12 @@
             const input = document.getElementById('adminCodeInput');
             if (navigator.clipboard && navigator.clipboard.readText) {
                 navigator.clipboard.readText().then(text => {
-                    input.value = text.trim();
+                    const clean = text.replace(/\D/g, '').slice(0, 6);
+                    input.value = clean;
                     input.select();
                     const btn = document.querySelector('.paste-btn-admin');
-                    btn.textContent = '✅ PEGADO';
-                    setTimeout(() => { btn.textContent = '📋 PEGAR'; }, 1500);
-                    // Activar automáticamente
+                    btn.textContent = '✅';
+                    setTimeout(() => { btn.textContent = '📋'; }, 1500);
                     setTimeout(activarAdminDesdePanel, 300);
                 }).catch(() => {
                     input.focus();
@@ -1923,6 +1953,12 @@
         }
 
         function activarAdminDesdePanel() {
+            const localId = isMultiplayer ? miPlayerId : 1;
+            if (localId !== 1 && isMultiplayer) {
+                mostrarNotificacionAdmin('⛔ Solo el anfitrión puede activar admin', '#ff6b6b');
+                return;
+            }
+
             const input = document.getElementById('adminCodeInput');
             const code = input.value.trim();
             const statusEl = document.getElementById('adminStatus');
@@ -1930,18 +1966,17 @@
             if (code === ADMIN_CODE) {
                 adminActivated = true;
                 adminImmortal = true;
-                statusEl.textContent = '✅ ACTIVADO · Inmortal';
+                statusEl.textContent = '✅ ON · Inmortal';
                 statusEl.className = 'admin-status active';
                 document.getElementById('adminToggleBtn').classList.add('active');
-                mostrarNotificacionAdmin('🔑 MODO ADMIN ACTIVADO · INMORTAL', '#00ffcc', true);
-                // Revivir si está muerto
-                const localId = isMultiplayer ? miPlayerId : 1;
-                if (players[localId]) {
-                    players[localId].health = CONFIG.maxHealth;
-                    updateHealthUI(localId);
-                    players[localId].isDead = false;
-                    if (players[localId].playerMesh) players[localId].playerMesh.visible = true;
-                    if (deathPending === localId) {
+                mostrarNotificacionAdmin('🔑 ADMIN ACTIVADO · INMORTAL', '#00ffcc', true);
+                const localId2 = isMultiplayer ? miPlayerId : 1;
+                if (players[localId2]) {
+                    players[localId2].health = CONFIG.maxHealth;
+                    updateHealthUI(localId2);
+                    players[localId2].isDead = false;
+                    if (players[localId2].playerMesh) players[localId2].playerMesh.visible = true;
+                    if (deathPending === localId2) {
                         const ds = document.getElementById('deathScreen');
                         if (ds) { ds.style.display = 'none';
                             ds.style.pointerEvents = 'none'; }
@@ -1950,42 +1985,41 @@
                         isGameOver = false;
                     }
                 }
-                // Cerrar panel después de activar
                 setTimeout(toggleAdminPanel, 1000);
                 input.value = '';
             } else if (code.length > 0) {
-                statusEl.textContent = '❌ Código incorrecto';
+                statusEl.textContent = '❌ Incorrecto';
                 statusEl.className = 'admin-status';
                 setTimeout(() => {
-                    statusEl.textContent = 'Estado: Desactivado';
+                    statusEl.textContent = 'Estado: Off';
                     statusEl.className = 'admin-status';
                 }, 2000);
             } else {
                 statusEl.textContent = '⚠️ Ingresa el código';
                 statusEl.className = 'admin-status';
                 setTimeout(() => {
-                    statusEl.textContent = 'Estado: Desactivado';
+                    statusEl.textContent = 'Estado: Off';
                     statusEl.className = 'admin-status';
                 }, 1500);
             }
         }
 
-        // También permitir activar con teclado (para PC)
+        // Detectar código por teclado (solo jugador local)
         document.addEventListener('keydown', (e) => {
             const activeElement = document.activeElement;
             if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
                 return;
             }
 
-            // Si el panel está abierto, no interferir
+            const localId = isMultiplayer ? miPlayerId : 1;
+            if (localId !== 1 && isMultiplayer) return; // Solo el jugador 1 puede usar admin
+
             if (adminPanelOpen) return;
 
-            // Detectar cualquier tecla para el código admin
-            if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            if (e.key.length === 1 && /[0-9]/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
                 adminImmortalWhileTyping = true;
 
                 if (gameActive && !isGameOver) {
-                    const localId = isMultiplayer ? miPlayerId : 1;
                     if (players[localId] && players[localId].isDead) {
                         if (deathPending === localId) {
                             revivirJugador();
@@ -2016,8 +2050,7 @@
                         adminInputTimer = null; }
                     adminImmortalWhileTyping = false;
                     document.getElementById('adminToggleBtn').classList.add('active');
-                    mostrarNotificacionAdmin('🔑 MODO ADMIN ACTIVADO · INMORTAL', '#00ffcc', true);
-                    const localId = isMultiplayer ? miPlayerId : 1;
+                    mostrarNotificacionAdmin('🔑 ADMIN ACTIVADO · INMORTAL', '#00ffcc', true);
                     if (players[localId]) {
                         players[localId].health = CONFIG.maxHealth;
                         updateHealthUI(localId);
@@ -2032,10 +2065,9 @@
                             isGameOver = false;
                         }
                     }
-                    // Actualizar panel si está abierto
                     if (adminPanelOpen) {
                         const statusEl = document.getElementById('adminStatus');
-                        statusEl.textContent = '✅ ACTIVADO · Inmortal';
+                        statusEl.textContent = '✅ ON · Inmortal';
                         statusEl.className = 'admin-status active';
                         document.getElementById('adminCodeInput').value = '';
                     }
@@ -2112,7 +2144,6 @@
                 if (adminImmortal) {
                     mostrarNotificacionAdmin('🛡️ INMORTAL ACTIVADO', '#00ffaa');
                     try {
-                        const localId = isMultiplayer ? miPlayerId : 1;
                         if (players[localId]) {
                             players[localId].health = CONFIG.maxHealth;
                             updateHealthUI(localId);
@@ -2136,7 +2167,9 @@
         });
 
         document.addEventListener('keyup', (e) => {
-            if (e.key.length === 1 && adminInput.length > 0) {
+            const localId = isMultiplayer ? miPlayerId : 1;
+            if (localId !== 1 && isMultiplayer) return;
+            if (e.key.length === 1 && /[0-9]/.test(e.key) && adminInput.length > 0) {
                 if (adminInputTimer) clearTimeout(adminInputTimer);
                 adminInputTimer = setTimeout(() => {
                     adminImmortalWhileTyping = false;
@@ -2149,6 +2182,8 @@
         });
 
         function mostrarNotificacionAdmin(texto, color = '#ffffff', forzar = false) {
+            const localId = isMultiplayer ? miPlayerId : 1;
+            if (localId !== 1 && isMultiplayer && !forzar) return;
             if (!adminActivated && !forzar) return;
             const notif = document.createElement('div');
             notif.style.cssText = `
@@ -2205,7 +2240,7 @@
         }
 
         // ============================================================
-        //  PEERJS (MULTIPLAYER)
+        //  PEERJS (MULTIPLAYER) - CÓDIGO COMPLETO
         // ============================================================
         let peer = null,
             conn = null,
@@ -2475,7 +2510,7 @@
         };
 
         // ============================================================
-        //  FUNCIONES UI
+        //  FUNCIONES UI - COMPLETAS
         // ============================================================
         function mostrarLogin(mode) {
             lobbyMode = mode;
@@ -3038,7 +3073,7 @@
         }
 
         // ============================================================
-        //  EDIFICIOS
+        //  EDIFICIOS - COMPLETO
         // ============================================================
         function hitBuilding(r) {
             for (const b of buildings) {
@@ -3355,7 +3390,7 @@
         }
 
         // ============================================================
-        //  SISTEMA DE AVIONES ENEMIGOS
+        //  SISTEMA DE AVIONES ENEMIGOS - COMPLETO
         // ============================================================
         let aviones = [];
         let balasAvion = [];
@@ -3814,7 +3849,7 @@
         }
 
         // ============================================================
-        //  SISTEMA DE BOMBAS DEL CIELO (NIVEL 2) - CORREGIDO (HACEN DAÑO)
+        //  SISTEMA DE BOMBAS DEL CIELO (NIVEL 2) - CORREGIDO
         // ============================================================
         let bombasCielo = [];
         const MAX_BOMBAS = 10;
@@ -3898,7 +3933,6 @@
 
                 let hit = b.g.position.y <= 0.6 || b.life <= 0;
 
-                // DETECCIÓN DE IMPACTO CON EL JUGADOR - CORREGIDO
                 if (p && p.camera && !p.isDead && !adminImmortal && !adminImmortalWhileTyping) {
                     const ddx = b.g.position.x - p.camera.position.x;
                     const ddy = b.g.position.y - p.camera.position.y;
@@ -5388,6 +5422,8 @@
             document.getElementById('timerDisplay').style.display = 'block';
             document.getElementById('controls').style.display = 'block';
             document.getElementById('miniMap').style.display = 'block';
+            // Mostrar botón de admin solo para jugador local
+            document.getElementById('adminToggleBtn').style.display = 'block';
             for (let i = 1; i <= 2; i++) players[i].isLocal = (i === 1);
             if (isMobile) {
                 document.getElementById('touchJoystick').style.display = 'block';
@@ -5496,7 +5532,7 @@
         }
 
         // ============================================================
-        //  INICIAR PARTIDA MULTIPLAYER
+        //  INICIAR PARTIDA MULTIPLAYER - Solo el jugador 1 (host) ve admin
         // ============================================================
         function iniciarJuegoMultiplayer(name, code, role) {
             isMultiplayer = true;
@@ -5511,6 +5547,13 @@
             document.getElementById('crossP2').style.display = miPlayerId === 2 ? 'block' : 'none';
             document.getElementById('controls').style.display = 'block';
             document.getElementById('miniMap').style.display = 'block';
+            // Solo el jugador 1 (host) ve el botón de admin
+            if (miPlayerId === 1) {
+                document.getElementById('adminToggleBtn').style.display = 'block';
+            } else {
+                document.getElementById('adminToggleBtn').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'none';
+            }
             if (!isMobile) setTimeout(() => { try { renderer.domElement.requestPointerLock(); } catch (e) {} }, 300);
             if (isMobile) {
                 document.getElementById('touchJoystick').style.display = 'block';
@@ -6027,6 +6070,8 @@
             document.getElementById('medkitBtn').style.display = 'none';
             document.getElementById('touchCamera').style.display = 'none';
             document.getElementById('miniMap').style.display = 'none';
+            document.getElementById('adminToggleBtn').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
             window._loopStarted = false;
             if (timerInterval) clearInterval(timerInterval);
             for (const r of rockets) { scene.remove(r.m); }
@@ -6205,6 +6250,9 @@
         updateMedkitUI(1);
         updateMedkitUI(2);
 
+        // El botón de admin solo se muestra cuando el jugador es local
+        document.getElementById('adminToggleBtn').style.display = 'none';
+
         setTimeout(() => {
             if (players[1].camera) {
                 renderer.render(scene, players[1].camera);
@@ -6214,10 +6262,10 @@
             document.getElementById('loading-overlay').classList.add('hidden');
         }, 100);
 
-        console.log('🚀 Rocket City 3D v60.7 - Admin: 6tt6r6dfryyT&R%D&r7');
+        console.log('🚀 Rocket City 3D v60.8 - Admin: 495022 (invisible)');
         console.log('📱 Móvil:', isMobile ? 'SÍ' : 'NO', '| Low-end:', isLowEnd ? 'SÍ' : 'NO');
         console.log('⌨️ F: disparar | Q: Gancho | E: Auto/Botiquín | Espacio: Saltar');
-        console.log('🔑 Código Admin: 6tt6r6dfryyT&R%D&r7 (pégalo en el panel o escríbelo)');
+        console.log('🔑 Código Admin: 495022 (solo visible para el jugador local)');
         console.log('💣 MINAS: Aparecen en todo el mapa · Radio reducido 25%');
         console.log('💥 BOMBAS AÉREAS: ¡Ahora hacen daño!');
 
